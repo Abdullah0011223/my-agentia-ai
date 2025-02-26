@@ -1,25 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ParticlesComponent from "./particles";
 
 export default function Hero() {
-  const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
+  const [messages, setMessages] = useState<{ text: string; sender: string }[]>(
+    []
+  );
   const [input, setInput] = useState("");
   const [showChat, setShowChat] = useState(false);
+  const [heroText, setHeroText] = useState("");
+  const fullText = "Embrace The Next Era Of AI Innovation";
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setHeroText(fullText.slice(0, i + 1));
+      i++;
+      if (i === fullText.length) clearInterval(interval);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const sendMessage = () => {
     if (!input.trim()) return;
 
     // User message
     const userMessage = { text: input, sender: "user" };
-    
-    // Bot response
-    const botMessage = { text: `Hello, I am Abdullah. You said: ${input}`, sender: "bot" };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
 
-    setMessages((prev) => [...prev, userMessage, botMessage]);
-    setInput(""); // Clear input
+    // Typing effect for bot
+    let i = 0;
+    const botResponse = `Hello, I am Abdullah. You said: ${input}`;
+    setTimeout(() => {
+      const interval = setInterval(() => {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (newMessages[newMessages.length - 1]?.sender !== "bot") {
+            newMessages.push({ text: "", sender: "bot" });
+          }
+          newMessages[newMessages.length - 1].text = botResponse.slice(
+            0,
+            i + 1
+          );
+          return [...newMessages];
+        });
+        i++;
+        if (i === botResponse.length) clearInterval(interval);
+      }, 50);
+    }, 500);
   };
 
   return (
@@ -27,13 +58,21 @@ export default function Hero() {
       <ParticlesComponent />
       <div className="flex flex-col justify-center items-center min-h-screen text-center gap-6">
         <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl px-4 text-transparent bg-gradient-to-r from-red-500 to-purple-500 bg-clip-text">
-          Embrace The Next Era Of AI Innovation
+          {heroText}
         </h1>
 
         <h2 className="text-white text-xl sm:text-2xl max-w-2xl">
           Unlock the power of AI to transform and elevate your business.
         </h2>
-        <button className="bg-gradient-to-r from-red-500 to-purple-500 text-white px-6 py-3 rounded-2xl font-bold">
+        <button
+          className="bg-gradient-to-r from-red-500 to-purple-500 text-white px-6 py-3 rounded-2xl font-bold"
+          onClick={() => {
+            const element = document.getElementById("solution");
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
           Explore AI Solutions
         </button>
 
